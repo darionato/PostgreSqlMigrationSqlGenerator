@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.Entity.Migrations.Sql;
 using System.Data.Entity.Migrations.Utilities;
 using System.Data.Metadata.Edm;
 using System.Diagnostics.Contracts;
@@ -12,7 +10,9 @@ using NegoziazioneEventi.Data.Utilities;
 using NegoziazioneEventi.Web.Core.Extensions;
 using Npgsql;
 
+// ReSharper disable CheckNamespace
 namespace System.Data.Entity.Migrations.Sql
+// ReSharper restore CheckNamespace
 {
     public class PostgreSqlMigrationSqlGenerator : SqlServerMigrationSqlGenerator
     {
@@ -23,6 +23,31 @@ namespace System.Data.Entity.Migrations.Sql
         {
 
             _generatedSchemas = new HashSet<string>();
+
+        }
+
+        protected override void Generate(DeleteHistoryOperation deleteHistoryOperation)
+        {
+
+            Contract.Requires(deleteHistoryOperation != null);
+
+            using (var writer = Writer())
+            {
+
+                writer.Write("DELETE FROM \"dbo\".");
+
+                writer.Write(Name(deleteHistoryOperation.Table));
+
+                writer.Write(" WHERE ");
+
+                writer.Write("{0} = ", Quote("MigrationId"));
+
+                writer.Write(Generate(deleteHistoryOperation.MigrationId));
+
+
+                Statement(writer);
+
+            }
 
         }
 
@@ -42,7 +67,7 @@ namespace System.Data.Entity.Migrations.Sql
 
                 writer.Write(Name(insertHistoryOperation.Table));
 
-                writer.Write(" (\"MigrationId\", \"Model\", \"ProductVersion\")");
+                writer.Write(" ({0}, {1}, {2})", Quote("MigrationId"), Quote("Model"), Quote("ProductVersion"));
 
                 writer.Write(" VALUES (");
 
@@ -87,11 +112,18 @@ namespace System.Data.Entity.Migrations.Sql
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(schema));
 
+            // till EF 5, connection string is not available here
+            // so the schema should be created manually
+            // in Postgresql I have to execute a query to check if the schema already exists
+            // because a function like "schema_id()" not exists
+
+            /*
             using (var conn = CreateConnection())
             {
 
+                
                 conn.ConnectionString = 
-                    @"[connection string...TODO]";
+                    @"Server=127.0.0.1;Port=5432;Database=ne;User Id=postgres;Password=Malfatti;CommandTimeout=20;Preload Reader = true;";
 
                 conn.Open();
 
@@ -123,6 +155,8 @@ namespace System.Data.Entity.Migrations.Sql
                 Statement(writer);
 
             }
+             */
+
         }
 
         protected override void Generate(DropTableOperation dropTableOperation)
