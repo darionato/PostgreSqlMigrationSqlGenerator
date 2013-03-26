@@ -6,8 +6,7 @@ using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
 using System.Data.Entity.Migrations.Model;
-using NegoziazioneEventi.Data.Utilities;
-using NegoziazioneEventi.Web.Core.Extensions;
+using Badlydone.Utilities;
 using Npgsql;
 
 // ReSharper disable CheckNamespace
