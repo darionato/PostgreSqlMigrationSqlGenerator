@@ -9,6 +9,7 @@ Requires
 
 1. Npgsql (you can find it in NuGet)
 2. A database already creaded with a new schema called "dbo"
+3. [MaxLength(n)] attribute is required on each string properties of models
 
 
 Installation
