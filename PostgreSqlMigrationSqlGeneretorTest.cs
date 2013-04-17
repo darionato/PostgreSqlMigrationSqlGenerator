@@ -12,6 +12,36 @@ namespace System.Data.Entity.Migrations.Sql.Test
     [TestFixture]
     public class PostgreSqlMigrationSqlGeneretorTest
     {
+
+        [TestCase(null, "", "NOT NULL")]
+        [TestCase(false, "SET NOT NULL", "DROP NOT NULL")]
+        [TestCase(true, "DROP NOT NULL", "SET NOT NULL")]
+        public void GenerateAlterColumn(bool? nullable, string contain, string notContain)
+        {
+
+            var migrationProvider = new PostgreSqlMigrationSqlGenerator();
+
+            var column = new ColumnModel(PrimitiveTypeKind.String)
+                {
+                    Name = "C",
+                    MaxLength = 120,
+                    IsNullable = nullable
+                };
+
+            var alterColumnOperation = new AlterColumnOperation("dbo.T", column, false);
+
+            var sql = migrationProvider.Generate(new[] { alterColumnOperation }, "9.2").Join(s => s.Sql, Environment.NewLine);
+
+            const string returnSqlBase = "ALTER TABLE \"dbo\".\"T\" ALTER COLUMN \"C\" ";
+
+            Assert.IsNotNull(sql);
+            Assert.True(sql.Contains(returnSqlBase));
+            Assert.True(sql.Contains(returnSqlBase + "TYPE varchar(120)"));
+            Assert.True(sql.Contains(returnSqlBase + contain));
+            Assert.False(sql.Contains(returnSqlBase + notContain));
+
+        }
+
         [Test]
         public void GenerateShouldOutputInvariantDecimalsWhenNonInvariantCulture()
         {
@@ -270,10 +300,21 @@ namespace System.Data.Entity.Migrations.Sql.Test
         {
             var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
 
-            var sql = migrationSqlGenerator.Generate(new[] { new DropTableOperation("Customers") }, "9.2").Join(
+            var sql = migrationSqlGenerator.Generate(new[] { new DropTableOperation("dbo.Customers") }, "9.2").Join(
                 s => s.Sql, Environment.NewLine);
 
-            Assert.True(sql.Contains("DROP TABLE \"Customers\""));
+            Assert.True(sql.Contains("DROP TABLE \"dbo\".\"Customers\""));
+        }
+
+        [Test]
+        public void GenerateCanOutputDeleteHistoryOperation()
+        {
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+
+            var sql = migrationSqlGenerator.Generate(new[] { new DeleteHistoryOperation("__MigrationHistory", "201212120818356_AddHouses") }, "9.2").Join(
+                s => s.Sql, Environment.NewLine);
+
+            Assert.True(sql.Contains("DELETE FROM \"dbo\".\"__MigrationHistory\" WHERE \"MigrationId\" = '201212120818356_AddHouses'"));
         }
 
         [TestCase(PrimitiveTypeKind.Guid, "uuid")]
@@ -370,46 +411,6 @@ namespace System.Data.Entity.Migrations.Sql.Test
         }
 
         [Test]
-        public void GenerateCanOutputAlterGeometryColumnOperationWithDefaultValue()
-        {
-            var operation
-                = new AlterColumnOperation(
-                    "T",
-                    new ColumnModel(PrimitiveTypeKind.Geometry)
-                    {
-                        IsNullable = false,
-                        Name = "C",
-                        DefaultValue = DbGeometry.FromText("POINT (8 9)")
-                    },
-                    isDestructiveChange: false);
-
-            var sql = new PostgreSqlMigrationSqlGenerator().Generate(new[] { operation }, "9.2").Join(s => s.Sql, Environment.NewLine);
-
-            Assert.AreEqual(
-                "ALTER TABLE \"T\" ADD CONSTRAINT DF_C DEFAULT 'SRID=0;POINT (8 9)' FOR \"C\"\r\nALTER TABLE \"T\" ALTER COLUMN \"C\" point NOT NULL", sql);
-        }
-
-        [Test]
-        public void GenerateCanOutputAlterGeometryColumnOperationWithSqlDefaultValue()
-        {
-            var operation
-                = new AlterColumnOperation(
-                    "T",
-                    new ColumnModel(PrimitiveTypeKind.Geometry)
-                    {
-                        IsNullable = false,
-                        Name = "C",
-                        DefaultValueSql = "'POINT (8 9)'"
-                    },
-                    isDestructiveChange: false);
-
-            var sql = new PostgreSqlMigrationSqlGenerator().Generate(new[] { operation }, "9.2").Join(s => s.Sql, Environment.NewLine);
-
-            Assert.AreEqual(
-                "ALTER TABLE \"T\" ADD CONSTRAINT DF_C DEFAULT 'POINT (8 9)' FOR \"C\"\r\nALTER TABLE \"T\" ALTER COLUMN \"C\" point NOT NULL", sql);
-        }
-
-        [Test]
         public void GenerateCanOutputAlterGeometryColumnOperationWithNoDefaultValue()
         {
             var operation
@@ -425,7 +426,7 @@ namespace System.Data.Entity.Migrations.Sql.Test
             var sql = new PostgreSqlMigrationSqlGenerator().Generate(new[] { operation }, "9.2").Join(s => s.Sql, Environment.NewLine);
 
             Assert.AreEqual(
-               "ALTER TABLE \"T\" ALTER COLUMN \"C\" point NOT NULL", sql);
+               "ALTER TABLE \"T\" ALTER COLUMN \"C\" TYPE point;ALTER TABLE \"T\" ALTER COLUMN \"C\" SET NOT NULL;", sql);
         }
 
         [Test]

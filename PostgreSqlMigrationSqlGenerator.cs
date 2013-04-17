@@ -280,6 +280,42 @@ namespace System.Data.Entity.Migrations.Sql
             }
         }
 
+        protected override void Generate(AlterColumnOperation alterColumnOperation)
+        {
+            using (var writer = Writer())
+            {
+
+                // create initial SQL
+                var sql = string.Format("ALTER TABLE {0} ALTER COLUMN ",
+                                        Name(alterColumnOperation.Table));
+
+                writer.Write(sql);
+
+                // generate the column name and type part
+                var column = alterColumnOperation.Column;
+
+                Generate(column, writer, true);
+
+                // end the column type
+                writer.Write(";");
+
+
+                if (column.IsNullable != null)
+                {
+
+                    // create a new row to set nullable
+                    writer.Write(sql);
+
+                    writer.Write(Quote(column.Name));
+
+                    writer.Write(" {0} NOT NULL;", column.IsNullable == true ? "DROP" : "SET" );
+
+                }
+
+                Statement(writer);
+            }
+        }
+
         protected override void Generate(AddPrimaryKeyOperation addPrimaryKeyOperation)
         {
             Contract.Requires(addPrimaryKeyOperation != null);
@@ -365,13 +401,13 @@ namespace System.Data.Entity.Migrations.Sql
             }
         }
 
-        private void Generate(ColumnModel column, IndentedTextWriter writer)
+        private void Generate(ColumnModel column, IndentedTextWriter writer, bool isAlter = false)
         {
             Contract.Requires(column != null);
             Contract.Requires(writer != null);
 
             writer.Write(Quote(column.Name));
-            writer.Write(" ");
+            writer.Write(" {0}", isAlter ? "TYPE " : "");
             writer.Write(BuildColumnType(column));
 
 
@@ -383,7 +419,8 @@ namespace System.Data.Entity.Migrations.Sql
 
             // check if it's nullable
             if ((column.IsNullable != null)
-                && !column.IsNullable.Value)
+                && !column.IsNullable.Value
+                && isAlter == false)
             
                 writer.Write(" NOT NULL");
 
