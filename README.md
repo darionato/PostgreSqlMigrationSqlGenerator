@@ -26,3 +26,9 @@ Installation with NuGet
 -----------------------
 
 PM> Install-Package EntityFramework.v5.PostgreSql
+
+
+What's next
+-----------
+
+Support to Entity Framework 6
