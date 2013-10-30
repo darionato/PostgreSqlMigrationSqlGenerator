@@ -1,0 +1,16 @@
+EntityFramework.v5.PostgreSql/EntityFramework.PostgreSql/bin
+EntityFramework.v5.PostgreSql/EntityFramework.PostgreSql/obj
+EntityFramework.v5.PostgreSql/EntityFramework.PostgreSql.Test/bin
+EntityFramework.v5.PostgreSql/EntityFramework.PostgreSql.Test/obj
+EntityFramework.v5.PostgreSql/_ReSharper.EntityFramework.PostgreSql/
+EntityFramework.v5.PostgreSql/packages/*
+*.pyc
+*.zip
+*.sdf
+*.user
+*.log
+*.log.*
+*.orig
+*.nupkg
+*.exe
+*.suo

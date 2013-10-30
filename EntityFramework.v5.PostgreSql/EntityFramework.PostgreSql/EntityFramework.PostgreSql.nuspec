@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>EntityFramework.v5.PostgreSql</id>
+    <version>1.1</version>
+    <title>EntityFramework.v5.PostgreSql</title>
+    <authors>Dario Malfatti</authors>
+    <owners>Dario Malfatti</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/darionato/PostgreSqlMigrationSqlGenerator</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Allow to use Entity Framework 5 with PostgreSQL</description>
+    <releaseNotes>Complete version for EF5.</releaseNotes>
+    <copyright>Copyright 2013</copyright>
+    <tags>Postgres EF Entity Framework Postgresql sql migration</tags>
+  </metadata>
+</package>
