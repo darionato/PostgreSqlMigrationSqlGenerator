@@ -20,3 +20,9 @@ Installation
 	<connectionStrings>
     <add name="DataContext" connectionString="Server=127.0.0.1;Port=5432;Database=db;User Id=postgres;Password=password;CommandTimeout=20;Preload Reader = true;" providerName="Npgsql" />
   </connectionStrings>
+
+
+Installation with NuGet
+-----------------------
+
+PM> Install-Package EntityFramework.v5.PostgreSql
