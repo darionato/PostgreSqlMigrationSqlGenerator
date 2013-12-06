@@ -17,10 +17,13 @@ Installation
 
 1. Change your connection string into the file web.conf like this:
 
-	<connectionStrings>
-    <add name="DataContext" connectionString="Server=127.0.0.1;Port=5432;Database=db;User Id=postgres;Password=password;CommandTimeout=20;Preload Reader = true;" providerName="Npgsql" />
-  </connectionStrings>
-
+``` 
+<connectionStrings>
+    <add name="DataContext" 
+        connectionString="Server=127.0.0.1;Port=5432;Database=db;UserId=postgres;Password=password;CommandTimeout=20;Preload Reader = true;" 
+        providerName="Npgsql" />
+</connectionStrings>
+```
 
 Installation with NuGet
 -----------------------
