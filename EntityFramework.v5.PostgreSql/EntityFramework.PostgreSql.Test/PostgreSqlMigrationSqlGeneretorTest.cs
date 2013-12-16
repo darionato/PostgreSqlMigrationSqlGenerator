@@ -18,6 +18,35 @@ namespace EntityFramework.PostgreSql.Test
         [TestCase(null, "", "NOT NULL")]
         [TestCase(false, "SET NOT NULL", "DROP NOT NULL")]
         [TestCase(true, "DROP NOT NULL", "SET NOT NULL")]
+        public void GenerateAlterDecimalColumn(bool? nullable, string contain, string notContain)
+        {
+
+            var migrationProvider = new PostgreSqlMigrationSqlGenerator();
+
+            var column = new ColumnModel(PrimitiveTypeKind.Decimal)
+            {
+                Name = "C",
+                IsNullable = nullable
+            };
+
+            var alterColumnOperation = new AlterColumnOperation("dbo.T", column, false);
+
+            var sql = migrationProvider.Generate(new[] { alterColumnOperation }, "9.2").Join(s => s.Sql, Environment.NewLine);
+
+            const string returnSqlBase = "ALTER TABLE \"dbo\".\"T\" ALTER COLUMN \"C\" ";
+
+            Assert.IsNotNull(sql);
+            Assert.True(sql.Contains(returnSqlBase));
+            Assert.True(sql.Contains(returnSqlBase + "TYPE decimal"));
+            Assert.True(sql.Contains(returnSqlBase + contain));
+            Assert.False(sql.Contains(returnSqlBase + notContain));
+
+        }
+
+
+        [TestCase(null, "", "NOT NULL")]
+        [TestCase(false, "SET NOT NULL", "DROP NOT NULL")]
+        [TestCase(true, "DROP NOT NULL", "SET NOT NULL")]
         public void GenerateAlterColumn(bool? nullable, string contain, string notContain)
         {
 
