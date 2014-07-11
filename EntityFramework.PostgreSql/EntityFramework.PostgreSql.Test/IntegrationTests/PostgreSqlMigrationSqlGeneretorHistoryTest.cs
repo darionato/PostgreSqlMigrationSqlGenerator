@@ -1,4 +1,5 @@
-﻿using System.Data.Entity.Infrastructure;
+﻿using System.Data.Common;
+using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using System.Data.Entity;
 using System.Data.Entity.Migrations.Sql;
@@ -21,8 +22,10 @@ namespace EntityFramework.PostgreSql.Test.IntegrationTests
         {
 
 
-            var migrator = new DbMigrator(new LocalMigrationConfiguration());
+            //var f = DbProviderFactories.GetFactory("Npgsql");
 
+            var migrator = new DbMigrator(new LocalMigrationConfiguration());
+            var migs = migrator.GetLocalMigrations();
             migrator.Update();
 
 
@@ -35,14 +38,15 @@ namespace EntityFramework.PostgreSql.Test.IntegrationTests
                 AutomaticMigrationDataLossAllowed = true;
                 AutomaticMigrationsEnabled = false;
                 SetSqlGenerator("Npgsql", new PostgreSqlMigrationSqlGenerator());
+                MigrationsDirectory = "Migrations";
                 MigrationsNamespace = "EntityFramework.PostgreSql.Test.IntegrationTests.Migrations";
-                MigrationsAssembly = typeof (LocalPgContext).Assembly;
+                MigrationsAssembly = typeof(PostgreSqlMigrationSqlGeneretorHistoryTest).Assembly;
                 TargetDatabase = new DbConnectionInfo(ConnectionString, ProviderName);
             }
         }
 
-        public class LocalPgContext : DbContext//, IDbProviderFactoryResolver, IDbConnectionFactory
-        {/*
+        public class LocalPgContext : DbContext, IDbProviderFactoryResolver, IDbConnectionFactory
+        {
             public DbProviderFactory ResolveProviderFactory(DbConnection connection)
             {
                 return DbProviderFactories.GetFactory("Npgsql");
@@ -51,7 +55,7 @@ namespace EntityFramework.PostgreSql.Test.IntegrationTests
             public DbConnection CreateConnection(string nameOrConnectionString)
             {
                 return new NpgsqlConnection(nameOrConnectionString);
-            }*/
+            }
         }
         /*
         public class LocalConfiguration : DbConfiguration
