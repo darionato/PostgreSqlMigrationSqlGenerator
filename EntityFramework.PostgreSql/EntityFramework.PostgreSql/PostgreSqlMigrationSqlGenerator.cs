@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Data.Common;
-using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Migrations.History;
 using System.Data.Entity.Migrations.Model;
@@ -66,6 +64,7 @@ namespace System.Data.Entity.Migrations.Sql
                 yield return sequence ?? enumerator.Current;
             }
         }
+
 
         private void Generate(AlterColumnOperation migration)
         {
@@ -515,7 +514,7 @@ namespace System.Data.Entity.Migrations.Sql
         }
 
 
-        private string Generate(byte[] defaultValue)
+        private string Generate(IEnumerable<byte> defaultValue)
         {
             Contract.Requires(defaultValue != null);
 
@@ -713,11 +712,11 @@ namespace System.Data.Entity.Migrations.Sql
 
             public static HistoryRebuildOperationSequence Detect(IEnumerator<MigrationOperation> enumerator)
             {
-                const string HistoryTableName = "dbo." + HistoryContext.DefaultTableName;
+                const string historyTableName = "dbo." + HistoryContext.DefaultTableName;
 
                 var addColumnOperation = enumerator.Current as AddColumnOperation;
                 if (addColumnOperation == null
-                    || addColumnOperation.Table != HistoryTableName
+                    || addColumnOperation.Table != historyTableName
                     || addColumnOperation.Column.Name != "ContextKey")
                 {
                     return null;
@@ -727,16 +726,16 @@ namespace System.Data.Entity.Migrations.Sql
 
                 enumerator.MoveNext();
                 var dropPrimaryKeyOperation = (DropPrimaryKeyOperation)enumerator.Current;
-                Debug.Assert(dropPrimaryKeyOperation.Table == HistoryTableName);
+                Debug.Assert(dropPrimaryKeyOperation.Table == historyTableName);
                 DebugCheck.NotNull(dropPrimaryKeyOperation.CreateTableOperation);
 
                 enumerator.MoveNext();
                 var alterColumnOperation = (AlterColumnOperation)enumerator.Current;
-                Debug.Assert(alterColumnOperation.Table == HistoryTableName);
+                Debug.Assert(alterColumnOperation.Table == historyTableName);
 
                 enumerator.MoveNext();
                 var addPrimaryKeyOperation = (AddPrimaryKeyOperation)enumerator.Current;
-                Debug.Assert(addPrimaryKeyOperation.Table == HistoryTableName);
+                Debug.Assert(addPrimaryKeyOperation.Table == historyTableName);
 
                 return new HistoryRebuildOperationSequence(
                     addColumnOperation, dropPrimaryKeyOperation);
