@@ -21,7 +21,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         public void GenerateAlterDecimalColumn(bool? nullable, string contain, string notContain)
         {
 
-            var migrationProvider = new PostgreSqlMigrationSqlGenerator();
+            var migrationProvider = new PostgreSqlMigrationSqlGeneratorNew();
 
             var column = new ColumnModel(PrimitiveTypeKind.Decimal)
             {
@@ -50,7 +50,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         public void GenerateAlterColumn(bool? nullable, string contain, string notContain)
         {
 
-            var migrationProvider = new PostgreSqlMigrationSqlGenerator();
+            var migrationProvider = new PostgreSqlMigrationSqlGeneratorNew();
 
             var column = new ColumnModel(PrimitiveTypeKind.String)
                 {
@@ -76,7 +76,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateShouldOutputInvariantDecimalsWhenNonInvariantCulture()
         {
-            var migrationProvider = new PostgreSqlMigrationSqlGenerator();
+            var migrationProvider = new PostgreSqlMigrationSqlGeneratorNew();
 
             var addColumnOperation
                 = new AddColumnOperation(
@@ -106,7 +106,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputAddTimestampColumnOperation()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var addColumnOperation
                 = new AddColumnOperation(
@@ -126,7 +126,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputAddTimestampStoreTypeColumnOperation()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var addColumnOperation
                 = new AddColumnOperation(
@@ -146,7 +146,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputDropIndexOperation()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var dropIndexOperation = new DropIndexOperation
             {
@@ -163,7 +163,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputDropPrimaryKeyOperation()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var dropPrimaryKeyOperation = new DropPrimaryKeyOperation
             {
@@ -178,7 +178,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputAddPrimaryKeyOperation()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var addPrimaryKeyOperation = new AddPrimaryKeyOperation
             {
@@ -196,7 +196,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputDropColumn()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var dropColumnOperation = new DropColumnOperation("Customers", "Foo");
 
@@ -208,7 +208,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputTimestampColumn()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var createTableOperation = new CreateTableOperation("Customers");
             var column = new ColumnModel(PrimitiveTypeKind.Binary)
@@ -226,7 +226,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputCustomSqlOperation()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var sql = migrationSqlGenerator.Generate(new[] { new SqlOperation("insert into foo") }, "9.2").Join(
                 s => s.Sql, Environment.NewLine);
@@ -254,7 +254,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
             createTableOperation.PrimaryKey = new AddPrimaryKeyOperation();
             createTableOperation.PrimaryKey.Columns.Add(idColumn.Name);
 
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var sql = migrationSqlGenerator.Generate(new[] { createTableOperation }, "9.2").Join(s => s.Sql, Environment.NewLine);
 
@@ -282,7 +282,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
             createTableOperation.PrimaryKey = new AddPrimaryKeyOperation();
             createTableOperation.PrimaryKey.Columns.Add(idColumn.Name);
 
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var createIndexOperation = new CreateIndexOperation
             {
@@ -317,7 +317,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
             addForeignKeyOperation.PrincipalColumns.Add("CustomerId");
             addForeignKeyOperation.DependentColumns.Add("CustomerId");
 
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var sql = migrationSqlGenerator.Generate(new[] { addForeignKeyOperation }, "9.2").Join(s => s.Sql, Environment.NewLine);
 
@@ -329,7 +329,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputDropTableStatement()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var sql = migrationSqlGenerator.Generate(new[] { new DropTableOperation("dbo.Customers") }, "9.2").Join(
                 s => s.Sql, Environment.NewLine);
@@ -355,7 +355,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [TestCase(PrimitiveTypeKind.String, "text")]
         public void GenerateCanOutputAddColumnStatement(PrimitiveTypeKind type, string typeName)
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var column = new ColumnModel(type)
             {
@@ -373,7 +373,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputAddColumnStatementWithCustomStoreType()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var column = new ColumnModel(PrimitiveTypeKind.String)
             {
@@ -401,7 +401,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
                         DefaultValue = DbGeometry.FromText("POINT (8 9)")
                     });
 
-            var sql = new PostgreSqlMigrationSqlGenerator().Generate(new[] { operation }, "9.2").Join(s => s.Sql, Environment.NewLine);
+            var sql = new PostgreSqlMigrationSqlGeneratorNew().Generate(new[] { operation }, "9.2").Join(s => s.Sql, Environment.NewLine);
 
             Assert.AreEqual("ALTER TABLE \"T\" ADD \"C\" point NOT NULL DEFAULT 'SRID=0;POINT (8 9)'", sql);
         }
@@ -418,7 +418,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
                         Name = "C"
                     });
 
-            var sql = new PostgreSqlMigrationSqlGenerator().Generate(new[] { operation }, "9.2").Join(s => s.Sql, Environment.NewLine);
+            var sql = new PostgreSqlMigrationSqlGeneratorNew().Generate(new[] { operation }, "9.2").Join(s => s.Sql, Environment.NewLine);
 
             Assert.AreEqual("ALTER TABLE \"T\" ADD \"C\" point NOT NULL DEFAULT 'SRID=0;POINT (0 0)'", sql);
         }
@@ -436,7 +436,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
                         DefaultValueSql = "'POINT (8 9)'"
                     });
 
-            var sql = new PostgreSqlMigrationSqlGenerator().Generate(new[] { operation }, "9.2").Join(s => s.Sql, Environment.NewLine);
+            var sql = new PostgreSqlMigrationSqlGeneratorNew().Generate(new[] { operation }, "9.2").Join(s => s.Sql, Environment.NewLine);
 
             Assert.AreEqual("ALTER TABLE \"T\" ADD \"C\" point NOT NULL DEFAULT 'POINT (8 9)'", sql);
         }
@@ -454,7 +454,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
                     },
                     isDestructiveChange: false);
 
-            var sql = new PostgreSqlMigrationSqlGenerator().Generate(new[] { operation }, "9.2").Join(s => s.Sql, Environment.NewLine);
+            var sql = new PostgreSqlMigrationSqlGeneratorNew().Generate(new[] { operation }, "9.2").Join(s => s.Sql, Environment.NewLine);
 
             Assert.AreEqual(
                "ALTER TABLE \"T\" ALTER COLUMN \"C\" TYPE point;ALTER TABLE \"T\" ALTER COLUMN \"C\" SET NOT NULL;", sql);
@@ -463,7 +463,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputAddColumnStatementWithExplicitDefaultValue()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var column = new ColumnModel(PrimitiveTypeKind.Guid)
             {
@@ -481,7 +481,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputAddColumnStatementWithExplicitDefaultValueSql()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var column = new ColumnModel(PrimitiveTypeKind.Guid)
             {
@@ -499,7 +499,7 @@ namespace EntityFramework.PostgreSql.Test.Tests
         [Test]
         public void GenerateCanOutputAddColumnStatementWhenNonNullableAndNoDefaultProvided()
         {
-            var migrationSqlGenerator = new PostgreSqlMigrationSqlGenerator();
+            var migrationSqlGenerator = new PostgreSqlMigrationSqlGeneratorNew();
 
             var column = new ColumnModel(PrimitiveTypeKind.Int32)
             {
