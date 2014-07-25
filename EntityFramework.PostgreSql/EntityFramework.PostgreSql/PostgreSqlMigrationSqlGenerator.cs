@@ -1,16 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Data.Entity.Core.Common;
+using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Migrations.History;
 using System.Data.Entity.Migrations.Model;
 using System.Data.Entity.Migrations.Utilities;
 using System.Data.Entity.Spatial;
+using System.Data.Entity.SqlServer.SqlGen;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using EntityFramework.PostgreSql;
 using EntityFramework.PostgreSql.Utilities;
 
 // ReSharper disable CheckNamespace
@@ -65,6 +71,89 @@ namespace System.Data.Entity.Migrations.Sql
             }
         }
 
+
+        private void Generate(HistoryOperation migration)
+        {
+            //migration
+
+            Check.NotNull(migration, "historyOperation");
+
+            using (var writer = Writer())
+            {
+                migration.CommandTrees.Each(
+                    commandTree =>
+                    {
+                        List<SqlParameter> _;
+
+                        switch (commandTree.CommandTreeKind)
+                        {
+                            case DbCommandTreeKind.Insert:
+
+                                writer.Write(GetInsertHistorySql((DbInsertCommandTree)commandTree));
+
+                               break;
+                        }
+                    });
+
+                Statement(writer);
+            }
+
+        }
+
+
+        string GetInsertHistorySql(DbInsertCommandTree tree)
+        {
+
+
+            var commandText = new StringBuilder();
+
+            var visitor = new PostgreSqlVisitor(commandText);
+
+            commandText.Append("insert into ");
+
+            if (0 < tree.SetClauses.Count)
+            {
+                // (c1, c2, c3, ...)
+                commandText.Append("(");
+                var first = true;
+                foreach (DbSetClause setClause in tree.SetClauses)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        commandText.Append(", ");
+                    }
+                    setClause.Property.Accept(visitor);
+                }
+                commandText.AppendLine(")");
+            }
+
+
+            if (0 < tree.SetClauses.Count)
+            {
+                // values c1, c2, ...
+                var first = true;
+                commandText.Append(" values (");
+                foreach (DbSetClause setClause in tree.SetClauses)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        commandText.Append(", ");
+                    }
+                    commandText.Append(setClause.Value);
+                }
+                commandText.AppendLine(")");
+            }
+
+            return commandText.ToString();
+        }
 
         private void Generate(AlterColumnOperation migration)
         {
