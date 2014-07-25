@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PostgreSqlMigrationSqlGenerator.cs" />
+    <Compile Include="PostgreSqlVisitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\ByteExtensions.cs" />
     <Compile Include="Utilities\DatabaseName.cs" />
