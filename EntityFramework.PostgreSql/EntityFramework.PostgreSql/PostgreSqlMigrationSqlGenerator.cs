@@ -1,13 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Migrations.History;
 using System.Data.Entity.Migrations.Model;
 using System.Data.Entity.Migrations.Utilities;
 using System.Data.Entity.Spatial;
-using System.Data.Entity.SqlServer.SqlGen;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
@@ -33,6 +30,7 @@ namespace System.Data.Entity.Migrations.Sql
         private IList<MigrationStatement> _statements;
         private HashSet<string> _generatedSchemas;
         private string _providerManifestToken;
+        private PostgreSqlGenerator _sqlGenerator;
 
         public override IEnumerable<MigrationStatement> Generate(IEnumerable<MigrationOperation> migrationOperations, string providerManifestToken)
         {
@@ -43,6 +41,7 @@ namespace System.Data.Entity.Migrations.Sql
             _statements = new List<MigrationStatement>();
             _generatedSchemas = new HashSet<string>();
 
+            InitializeProviderServices(providerManifestToken);
             GenerateStatements(migrationOperations);
 
             return _statements;
@@ -51,9 +50,21 @@ namespace System.Data.Entity.Migrations.Sql
 
         private void GenerateStatements(IEnumerable<MigrationOperation> migrationOperations)
         {
+
             Check.NotNull(migrationOperations, "migrationOperations");
 
             DetectHistoryRebuild(migrationOperations).Each<dynamic>(o => Generate(o));
+
+        }
+
+        private void InitializeProviderServices(string providerManifestToken)
+        {
+
+            Check.NotEmpty(providerManifestToken, "providerManifestToken");
+
+            _providerManifestToken = providerManifestToken;
+            _sqlGenerator = new PostgreSqlGenerator();
+
         }
 
         private static IEnumerable<MigrationOperation> DetectHistoryRebuild(
@@ -83,7 +94,6 @@ namespace System.Data.Entity.Migrations.Sql
                 migration.CommandTrees.Each(
                     commandTree =>
                     {
-                        List<SqlParameter> _;
 
                         switch (commandTree.CommandTreeKind)
                         {
@@ -107,9 +117,12 @@ namespace System.Data.Entity.Migrations.Sql
 
             var commandText = new StringBuilder();
 
-            var visitor = new PostgreSqlVisitor(commandText);
+            var visitor = new PostgreSqlVisitor(commandText, _sqlGenerator);
 
             commandText.Append("insert into ");
+
+            tree.Target.Expression.Accept(visitor);
+            commandText.Append(" ");
 
             if (0 < tree.SetClauses.Count)
             {
@@ -147,7 +160,7 @@ namespace System.Data.Entity.Migrations.Sql
                     {
                         commandText.Append(", ");
                     }
-                    commandText.Append(setClause.Value);
+                    setClause.Value.Accept(visitor);
                 }
                 commandText.AppendLine(")");
             }
@@ -707,13 +720,6 @@ namespace System.Data.Entity.Migrations.Sql
             Check.NotEmpty(identifier, "identifier");
 
             return "\"" + identifier + "\"";
-        }
-
-        private static string Escape(string s)
-        {
-            DebugCheck.NotNull(s);
-
-            return s.Replace("'", "''");
         }
 
         /// <summary>
