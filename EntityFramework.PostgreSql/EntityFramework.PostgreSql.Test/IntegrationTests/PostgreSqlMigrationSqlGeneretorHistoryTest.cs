@@ -3,8 +3,6 @@ using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using System.Data.Entity;
 using System.Data.Entity.Migrations.Sql;
-using System.Data.Entity.SqlServer;
-using EntityFramework.PostgreSql.Utilities;
 using Npgsql;
 using NUnit.Framework;
 
@@ -15,7 +13,7 @@ namespace EntityFramework.PostgreSql.Test.IntegrationTests
     public class PostgreSqlMigrationSqlGeneretorHistoryTest
     {
 
-        private const string ConnectionString = "Server=127.0.0.1;Port=5432;Database=testEF7;User Id=postgres;Password=p0o9i8u7y6;CommandTimeout=20;Preload Reader = true;";
+        private const string ConnectionString = "Server=127.0.0.1;Port=5432;Database=testEF6;User Id=postgres;Password=p0o9i8u7y6;CommandTimeout=20;Preload Reader = true;";
         private const string ProviderName = "Npgsql";
 
 
@@ -24,9 +22,9 @@ namespace EntityFramework.PostgreSql.Test.IntegrationTests
         {
 
 
-            const string cs = "Data Source=DARIO\\SQLEXPRESS;Initial Catalog=testEF6CreateNewDb;User ID=SA;Password=p0o9i8u7y6";
+            const string cs = "Server=127.0.0.1;Port=5432;Database=testEFxx;User Id=postgres;Password=p0o9i8u7y6;CommandTimeout=20;Preload Reader = true;";
 
-            var db = new DbContext(cs);
+            var db = new LocalPgContext(cs);
 
 
             if (!db.Database.Exists())
@@ -42,7 +40,7 @@ namespace EntityFramework.PostgreSql.Test.IntegrationTests
         }
 
 
-        [Test]
+        //[Test]
         public void GenerateInsertHistoryOperation()
         {
 
