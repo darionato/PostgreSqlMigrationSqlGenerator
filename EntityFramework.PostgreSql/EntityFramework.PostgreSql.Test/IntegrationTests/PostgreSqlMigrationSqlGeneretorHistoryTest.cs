@@ -3,6 +3,8 @@ using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using System.Data.Entity;
 using System.Data.Entity.Migrations.Sql;
+using System.Data.Entity.SqlServer;
+using EntityFramework.PostgreSql.Utilities;
 using Npgsql;
 using NUnit.Framework;
 
@@ -13,8 +15,31 @@ namespace EntityFramework.PostgreSql.Test.IntegrationTests
     public class PostgreSqlMigrationSqlGeneretorHistoryTest
     {
 
-        private const string ConnectionString = "Server=127.0.0.1;Port=5432;Database=testEF6;User Id=postgres;Password=p0o9i8u7y6;CommandTimeout=20;Preload Reader = true;";
+        private const string ConnectionString = "Server=127.0.0.1;Port=5432;Database=testEF7;User Id=postgres;Password=p0o9i8u7y6;CommandTimeout=20;Preload Reader = true;";
         private const string ProviderName = "Npgsql";
+
+
+        [Test]
+        public void CreateNewDatabase()
+        {
+
+
+            const string cs = "Data Source=DARIO\\SQLEXPRESS;Initial Catalog=testEF6CreateNewDb;User ID=SA;Password=p0o9i8u7y6";
+
+            var db = new DbContext(cs);
+
+
+            if (!db.Database.Exists())
+                db.Database.Create();
+
+            var exists = db.Database.Exists();
+
+
+            db.Database.Delete();
+
+            Assert.IsTrue(exists);
+
+        }
 
 
         [Test]
@@ -31,6 +56,7 @@ namespace EntityFramework.PostgreSql.Test.IntegrationTests
 
         }
 
+
         public class LocalMigrationConfiguration : DbMigrationsConfiguration<LocalPgContext>
         {
             public LocalMigrationConfiguration()
@@ -45,8 +71,16 @@ namespace EntityFramework.PostgreSql.Test.IntegrationTests
             }
         }
 
+
         public class LocalPgContext : DbContext, IDbProviderFactoryResolver, IDbConnectionFactory
         {
+
+            public LocalPgContext(string nameOrConnectionString) : base(nameOrConnectionString)
+            {
+                Database.SetInitializer(new CreateDatabaseIfNotExists<LocalPgContext>());
+            }
+
+
             public DbProviderFactory ResolveProviderFactory(DbConnection connection)
             {
                 return DbProviderFactories.GetFactory("Npgsql");
@@ -56,8 +90,36 @@ namespace EntityFramework.PostgreSql.Test.IntegrationTests
             {
                 return new NpgsqlConnection(nameOrConnectionString);
             }
+
+            DbConnection IDbConnectionFactory.CreateConnection(string nameOrConnectionString)
+            {
+                return CreateConnection(nameOrConnectionString);
+            }
+
+            DbProviderFactory IDbProviderFactoryResolver.ResolveProviderFactory(DbConnection connection)
+            {
+                return new LocalPgProviderFactory();
+            }
+
         }
+
+        public class LocalPgProviderFactory : DbProviderFactory
+        {
+
+            public override DbConnectionStringBuilder CreateConnectionStringBuilder()
+            {
+                return new NpgsqlConnectionStringBuilder(ConnectionString);
+            }
+
+            public override DbConnection CreateConnection()
+            {
+                return new NpgsqlConnection(ConnectionString);
+            }
+        }
+
+
         /*
+         * 
         public class LocalConfiguration : DbConfiguration
         {
             public LocalConfiguration()
