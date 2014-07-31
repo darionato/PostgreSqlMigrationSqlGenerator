@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Migrations.History;
@@ -495,52 +496,21 @@ namespace System.Data.Entity.Migrations.Sql
 
         private void GenerateCreateSchema(string schema)
         {
+
             Contract.Requires(!string.IsNullOrWhiteSpace(schema));
-
-            // till EF 5, connection string is not available here
-            // so the schema should be created manually
-            // in Postgresql I have to execute a query to check if the schema already exists
-            // because a function like "schema_id()" not exists
-
-            /*
-            using (var conn = CreateConnection())
-            {
-
-                
-                conn.ConnectionString = 
-                    @"Server=127.0.0.1;Port=5432;Database=ne;User Id=postgres;Password=Malfatti;CommandTimeout=20;Preload Reader = true;";
-
-                conn.Open();
-
-                using (var command = new NpgsqlCommand(
-                    string.Format(
-                        "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{0}';",
-                        schema), (NpgsqlConnection) conn))
-                {
-
-                    var reader = command.ExecuteReader();
-
-                    // if I have record, the schema exists, so I exit
-                    var hasRows = reader.HasRows;
-
-                    reader.Close();
-
-                    if (hasRows) return;
-
-                }
-
-            }
 
             using (var writer = Writer())
             {
 
                 writer.Write("CREATE SCHEMA ");
+
+                if (_providerManifestToken.StartsWith("9.3")) writer.Write("IF NOT EXISTS ");
+
                 writer.Write(Quote(schema));
 
                 Statement(writer);
 
             }
-             */
 
         }
 
