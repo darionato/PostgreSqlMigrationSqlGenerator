@@ -606,7 +606,7 @@ namespace System.Data.Entity.Migrations.Sql
             Check.NotNull(defaultValue, "defaultValue");
             //Debug.Assert(defaultValue.GetType().IsValueType());
 
-            return string.Format(CultureInfo.InvariantCulture, "{0}", defaultValue);
+            return string.Format(CultureInfo.CurrentCulture, "{0}", defaultValue);
         }
 
 
