@@ -1,7 +1,7 @@
 PostgreSqlMigrationSqlGenerator
 ===============================
 
-Class to handle Entity Framework migrations with PostgreSQL
+Class to handle Entity Framework 5 migrations with PostgreSQL
 
 
 Requires
@@ -34,4 +34,4 @@ PM> Install-Package EntityFramework.v5.PostgreSql
 What's next
 -----------
 
-Support to Entity Framework 6
+Support to Entity Framework 6 (2014-07-31 update: support to EF6 is quite done!)
