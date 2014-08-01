@@ -34,4 +34,4 @@ PM> Install-Package EntityFramework.v5.PostgreSql
 What's next
 -----------
 
-Support to Entity Framework 6 (2014-07-31 update: support to EF6 is quite done!)
+The migrator will be added into the next release of Npgsql (>=2.2.0) so I think that this project will stop here :( (but happy for the full support of Npgsql :)!)
